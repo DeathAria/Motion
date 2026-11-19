@@ -72,7 +72,7 @@
     {x: 470, y: 1395}, {x: 300, y: 900}
   ];
   const keys = { left: false, right: false, throttle: false, brake: false };
-  const car = { x: route[0].x, y: route[0].y, angle: routeAngle(0), speed: 0, boost: 100, boostTime: 0, pulse: 1, shield: 0 };
+  const car = { x: route[0].x, y: route[0].y, angle: routeAngle(0), speed: 0, steering: 0, acceleration: 0, drift: 0, boost: 100, boostTime: 0, pulse: 1, shield: 0 };
   let vw = 0, vh = 0, mode = "intro", elapsed = 0, previous = 0, cores = 0;
   let pickups = [], cops = [], particles = [], audio, sound = false, shake = 0, dash = 0;
   let seed = 89171;
@@ -87,6 +87,11 @@
     }
   }
   const renderer3D = window.PetalRun3D.create(document.querySelector("#game-3d"), route, buildings);
+  const cameraToggle = $("camera-toggle");
+  function cycleCamera() {
+    cameraToggle.firstChild.textContent = `CAMERA: ${renderer3D.cycleCamera()} `;
+  }
+  cameraToggle.addEventListener("click", cycleCamera);
 
   function resize() {
     const r = canvas.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
@@ -120,7 +125,7 @@
   }
   function newRun() {
     mode="playing"; elapsed=0; cores=0; cops=[]; particles=[]; shake=0;
-    car.x=route[0].x; car.y=route[0].y; car.angle=routeAngle(0); car.speed=0; car.boost=100; car.boostTime=0; car.pulse=1; car.shield=0;
+    car.x=route[0].x; car.y=route[0].y; car.angle=routeAngle(0); car.speed=0; car.steering=0; car.acceleration=0; car.drift=0; car.boost=100; car.boostTime=0; car.pulse=1; car.shield=0;
     pickups=[
       {x:800,y:302,type:"core"}, {x:1875,y:875,type:"core"}, {x:1310,y:1480,type:"core"},
       {x:1600,y:335,type:"boost"}, {x:2040,y:1110,type:"boost"}, {x:740,y:1380,type:"boost"},
@@ -148,7 +153,7 @@
     sound=!sound; $("sound-state").textContent=sound?"ON":"OFF"; if(sound) tone(520);
   });
   function boost() {
-    if(mode!=="playing"||car.boost<28)return;
+    if(mode!=="playing"||car.boost<28||car.speed<=0)return;
     car.boost-=28; car.boostTime=1.5; car.speed=Math.min(535,car.speed+85); car.shield=.45; shake=4;
     burst(car.x-Math.cos(car.angle)*25,car.y-Math.sin(car.angle)*25,"#70f3df",9); tone(440,.12,"sawtooth");
   }
@@ -164,6 +169,7 @@
     if(k==="d"||k==="arrowright")keys.right=down;
     if(k==="w"||k==="arrowup")keys.throttle=down;
     if(k==="s"||k==="arrowdown")keys.brake=down;
+    if(down&&!e.repeat&&k==="c")cycleCamera();
     if(down&&!e.repeat&&k===" ")boost();
     if(down&&!e.repeat&&k==="e")pulse();
     if(down&&k==="escape")mode=mode==="paused"?"playing":mode==="playing"?"paused":mode;
@@ -192,13 +198,21 @@
   function update(dt) {
     if(mode!=="playing")return;
     elapsed+=dt; dash+=dt*(3+car.speed/60); car.shield=Math.max(0,car.shield-dt); shake=Math.max(0,shake-dt*13);
+    const previousSpeed=car.speed;
     const road=onRoad(car.x,car.y);
     car.boostTime=Math.max(0,car.boostTime-dt);
-    car.speed+=keys.throttle?(road?220:95)*dt:-(keys.brake?320:70)*dt;
-    if(!road)car.speed-=110*dt;
-    car.speed=Math.max(0,Math.min(car.boostTime>0?535:400,car.speed));
+    if(keys.brake)car.speed=car.speed>0?Math.max(0,car.speed-320*dt):Math.max(-130,car.speed-100*dt);
+    else if(keys.throttle)car.speed=Math.min(car.boostTime>0?535:400,car.speed+(road?220:95)*dt);
+    else if(car.speed>0)car.speed=Math.max(0,car.speed-70*dt);
+    else car.speed=Math.min(0,car.speed+70*dt);
+    if(!road&&!keys.brake&&car.speed>0)car.speed=Math.max(0,car.speed-110*dt);
+    else if(!road&&!keys.brake&&car.speed<0)car.speed=Math.min(0,car.speed+110*dt);
+    car.acceleration=dt>0?(car.speed-previousSpeed)/dt:0;
     const steering = (keys.right ? 1 : 0) - (keys.left ? 1 : 0) || tiltSteering;
-    car.angle += steering * (.92 + car.speed / 260) * dt * Math.min(1, car.speed / 65 + .25);
+    car.steering=steering;
+    const targetDrift=Math.abs(steering)*Math.max(0,Math.min(1,(Math.abs(car.speed)-140)/230));
+    car.drift+=(targetDrift-car.drift)*Math.min(1,dt*4);
+    car.angle += steering * (.92 + Math.abs(car.speed) / 260) * dt * Math.min(1, Math.abs(car.speed) / 65 + .25) * (car.speed < 0 ? -1 : 1);
     car.x=Math.max(25,Math.min(world.w-25,car.x+Math.cos(car.angle)*car.speed*dt));
     car.y=Math.max(25,Math.min(world.h-25,car.y+Math.sin(car.angle)*car.speed*dt));
     if(car.boostTime>0)car.boost=Math.max(0,car.boost-dt*20);else car.boost=Math.min(100,car.boost+dt*4);
@@ -235,9 +249,9 @@
     ui.cores.textContent=`${cores} / 3`;ui.coreFill.style.width=`${cores/3*100}%`;
     [...ui.heat.children].forEach((el,i)=>el.classList.toggle("active",i<Math.min(5,cops.length+(elapsed>8?1:0))));
     ui.timer.textContent=formatTime(elapsed);
-    const speed=Math.round(car.speed*.34);ui.speed.textContent=String(speed).padStart(3,"0");
+    const speed=Math.round(Math.abs(car.speed)*.34);ui.speed.textContent=String(speed).padStart(3,"0");
     $("speed-fill").style.width=`${Math.min(100,speed/1.7)}%`;
-    ui.gear.textContent=mode==="paused"?"PAUSED":speed>95?"GEAR 02":speed>15?"GEAR 01":"READY";
+    ui.gear.textContent=mode==="paused"?"PAUSED":car.speed<0?"REVERSE":speed>95?"GEAR 02":speed>15?"GEAR 01":"READY";
     if(cores===3){ui.missionTitle.textContent="Skygarden run";ui.missionCopy.textContent="All cores secured. Return to the glowing garage.";}
   }
   function roundRect(x,y,w,h,r) {
@@ -567,10 +581,10 @@
     ctx.fillText("REAR VIEW", vw / 2, mirrorY + mirrorH + 10);
   }
 
-  function draw() {
+  function draw(dt) {
     const dpr=Math.min(devicePixelRatio||1,2);
     ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,vw,vh);
-    renderer3D.render({ car, cops, pickups, elapsed, cores });
+    renderer3D.render({ car, cops, pickups, elapsed, cores, deltaTime: dt, acceleration: car.acceleration, braking: keys.brake, drift: car.drift });
     if (shake > 0) ctx.translate((rand() - .5) * shake, (rand() - .5) * shake);
     const mirrorWidth = Math.min(150, vw * .22), mirrorHeight = 32;
     const mirrorX = vw / 2 - mirrorWidth / 2, mirrorY = 12;
@@ -595,6 +609,6 @@
     ctx.fillText("REAR VIEW", vw / 2, mirrorY + mirrorHeight + 10);
     if(mode==="paused"){ctx.fillStyle="#080d13a8";ctx.fillRect(0,0,vw,vh);ctx.fillStyle="#f3f5f8";ctx.textAlign="center";ctx.font="800 28px Manrope,sans-serif";ctx.fillText("PAUSED",vw/2,vh/2);ctx.font="12px monospace";ctx.fillText("PRESS ESC TO KEEP ROLLING",vw/2,vh/2+25);}
   }
-  function frame(time){const dt=Math.min(.04,(time-previous)/1000||0);previous=time;update(dt);draw();requestAnimationFrame(frame);}
+  function frame(time){const dt=Math.min(.04,(time-previous)/1000||0);previous=time;update(dt);draw(dt);requestAnimationFrame(frame);}
   requestAnimationFrame(frame);
 })();

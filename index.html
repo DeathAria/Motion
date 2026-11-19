@@ -28,6 +28,7 @@
         <canvas id="game-3d" aria-hidden="true"></canvas>
         <canvas id="game" aria-label="First-person 3D racing game. Drive with WASD, arrow keys, or touch controls."></canvas>
         <div class="hud">
+          <button class="camera-toggle" id="camera-toggle" type="button" aria-label="Change camera view">CAMERA: COCKPIT <kbd>C</kbd></button>
           <div class="mission panel">
             <div class="eyebrow">✦ STORY RUN <span>01</span></div>
             <strong id="mission-title">The Last Seed</strong>
@@ -55,7 +56,7 @@
             <p>Deliver a pocket-sized seed vault to the Skygarden before the night patrol catches up. Grab three bloom cores along the way — and don't forget to look good doing it.</p>
             <div class="facts"><span><b>01</b> COLLECT 3 CORES</span><span><b>02</b> REACH THE SKYGARDEN</span></div>
             <button class="start-button" id="start" type="button">START STORY RUN <span>↗</span></button>
-            <div class="controls-note">DRIVE <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> OR ARROWS <span>·</span> BOOST <kbd>SPACE</kbd> <span>·</span> PULSE <kbd>E</kbd></div>
+            <div class="controls-note">DRIVE <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> OR ARROWS <span>·</span> CAMERA <kbd>C</kbd> <span>·</span> BOOST <kbd>SPACE</kbd> <span>·</span> PULSE <kbd>E</kbd></div>
           </div>
         </div>
         <div class="overlay hidden" id="result">
