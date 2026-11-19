@@ -4,6 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#101522">
+    <meta name="description" content="Race through a neon flower city, collect bloom cores, and outrun the night patrol in Petal Run.">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Petal Run">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <title>Petal Run — Neon Bay</title>
     <link rel="stylesheet" href="styles.css">
   </head>
@@ -12,11 +20,13 @@
       <header class="topbar">
         <div class="brand"><span>✿</span> PETAL<span class="brand-light">RUN</span></div>
         <div class="location"><i></i> NEON BAY <b>/</b> NIGHT DRIVE</div>
+        <button class="install-button" id="install" type="button" hidden>INSTALL GAME</button>
         <button class="sound-button" id="sound" type="button" aria-label="Toggle sound">SOUND <span id="sound-state">OFF</span></button>
       </header>
 
       <section class="frame" aria-label="Petal Run arcade driving game">
-        <canvas id="game" aria-label="Top-down racing game. Drive with WASD or arrow keys."></canvas>
+        <canvas id="game-3d" aria-hidden="true"></canvas>
+        <canvas id="game" aria-label="First-person 3D racing game. Drive with WASD, arrow keys, or touch controls."></canvas>
         <div class="hud">
           <div class="mission panel">
             <div class="eyebrow">✦ STORY RUN <span>01</span></div>
@@ -57,12 +67,15 @@
           </div>
         </div>
         <div class="touch-controls" aria-label="Touch driving controls">
+          <button class="tilt-toggle" id="tilt-toggle" type="button" aria-pressed="false">TILT OFF</button>
           <div><button data-control="left" aria-label="Steer left">←</button><button data-control="right" aria-label="Steer right">→</button></div>
-          <div><button class="pulse-button" data-control="pulse" aria-label="Use pulse">✦</button><button data-control="boost" aria-label="Boost">BOOST</button><button class="gas-button" data-control="throttle" aria-label="Accelerate">GO ↑</button></div>
+          <div><button class="pulse-button" data-control="pulse" aria-label="Use pulse">✦</button><button data-control="boost" aria-label="Boost">BOOST</button><button data-control="brake" aria-label="Brake">BRAKE</button><button class="gas-button" data-control="throttle" aria-label="Accelerate">GO ↑</button></div>
         </div>
       </section>
       <footer><span><b>✿</b> LITTLE CARS. BIG CITY. MORE FLOWERS.</span><span class="tip">TIP: PETAL CHARGES REPLENISH YOUR BOOST</span></footer>
     </main>
+    <script src="three.min.js"></script>
+    <script src="renderer3d.js"></script>
     <script src="game.js"></script>
   </body>
 </html>
