@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#101522">
+    <title>Petal Run — Neon Bay</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div class="brand"><span>✿</span> PETAL<span class="brand-light">RUN</span></div>
+        <div class="location"><i></i> NEON BAY <b>/</b> NIGHT DRIVE</div>
+        <button class="sound-button" id="sound" type="button" aria-label="Toggle sound">SOUND <span id="sound-state">OFF</span></button>
+      </header>
+
+      <section class="frame" aria-label="Petal Run arcade driving game">
+        <canvas id="game" aria-label="Top-down racing game. Drive with WASD or arrow keys."></canvas>
+        <div class="hud">
+          <div class="mission panel">
+            <div class="eyebrow">✦ STORY RUN <span>01</span></div>
+            <strong id="mission-title">The Last Seed</strong>
+            <p id="mission-copy">Find the bloom caches and reach the Skygarden.</p>
+            <div class="objective"><span>BLOOM CORES</span><b id="cores">0 / 3</b></div>
+            <div class="track"><i id="core-fill"></i></div>
+          </div>
+          <div class="race-status">
+            <div class="panel small-panel"><div class="eyebrow">PATROL HEAT</div><div class="heat" id="heat"><i></i><i></i><i></i><i></i><i></i></div></div>
+            <div class="panel small-panel"><div class="eyebrow">RUN TIME</div><strong class="timer" id="timer">00:00</strong></div>
+          </div>
+          <div class="speed panel">
+            <div class="eyebrow">CITY SPEED</div>
+            <strong><span id="speed">000</span><small> KM/H</small></strong>
+            <div class="track"><i id="speed-fill"></i></div>
+            <div class="gear" id="gear">READY</div>
+          </div>
+          <div class="power-hint panel"><kbd>SPACE</kbd> BOOST <b>·</b> <kbd>E</kbd> PULSE</div>
+        </div>
+
+        <div class="overlay" id="intro">
+          <div class="story-card">
+            <div class="eyebrow accent">● A NEON BAY STORY</div>
+            <h1>The city needs<br><em>one last bloom.</em></h1>
+            <p>Deliver a pocket-sized seed vault to the Skygarden before the night patrol catches up. Grab three bloom cores along the way — and don't forget to look good doing it.</p>
+            <div class="facts"><span><b>01</b> COLLECT 3 CORES</span><span><b>02</b> REACH THE SKYGARDEN</span></div>
+            <button class="start-button" id="start" type="button">START STORY RUN <span>↗</span></button>
+            <div class="controls-note">DRIVE <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> OR ARROWS <span>·</span> BOOST <kbd>SPACE</kbd> <span>·</span> PULSE <kbd>E</kbd></div>
+          </div>
+        </div>
+        <div class="overlay hidden" id="result">
+          <div class="story-card result-card">
+            <div class="eyebrow accent" id="result-kicker">MISSION COMPLETE</div>
+            <h2 id="result-title">A garden takes root.</h2>
+            <p id="result-copy">Neon Bay is brighter tonight — thanks to you.</p>
+            <button class="start-button" id="again" type="button">DRIVE AGAIN <span>↻</span></button>
+          </div>
+        </div>
+        <div class="touch-controls" aria-label="Touch driving controls">
+          <div><button data-control="left" aria-label="Steer left">←</button><button data-control="right" aria-label="Steer right">→</button></div>
+          <div><button class="pulse-button" data-control="pulse" aria-label="Use pulse">✦</button><button data-control="boost" aria-label="Boost">BOOST</button><button class="gas-button" data-control="throttle" aria-label="Accelerate">GO ↑</button></div>
+        </div>
+      </section>
+      <footer><span><b>✿</b> LITTLE CARS. BIG CITY. MORE FLOWERS.</span><span class="tip">TIP: PETAL CHARGES REPLENISH YOUR BOOST</span></footer>
+    </main>
+    <script src="game.js"></script>
+  </body>
+</html>
