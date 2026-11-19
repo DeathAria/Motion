@@ -1,0 +1,9 @@
+{
+  "appId": "com.deatharia.petalrun",
+  "appName": "Petal Run",
+  "webDir": "dist",
+  "backgroundColor": "#101522",
+  "server": {
+    "androidScheme": "https"
+  }
+}
