@@ -3,6 +3,7 @@ name: Deploy Petal Run to GitHub Pages
 on:
   push:
     branches:
+      - main
       - deatharia-futuristic-city-racing-game
   workflow_dispatch:
 
